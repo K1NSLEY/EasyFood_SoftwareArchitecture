@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasyFood</title>
+    <style>
+      :root {
+        --bg: #fff7f1;
+        --card: #ffffff;
+        --primary: #ff6b35;
+        --primary-dark: #e85d2a;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --border: #f2d4c1;
+        --success: #16a34a;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #fff7f1 0%, #ffe9dc 100%);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 32px 20px 60px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .brand {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--primary);
+      }
+
+      .auth-bar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .btn {
+        border: none;
+        padding: 10px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-secondary {
+        background: #f3f4f6;
+        color: var(--text);
+      }
+
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 24px;
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        margin-top: 0;
+        font-size: 2.5rem;
+      }
+
+      .subtext {
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .forms {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      input, select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        font-size: 1rem;
+      }
+
+      label {
+        font-weight: 600;
+      }
+
+      .restaurants {
+        margin-top: 32px;
+      }
+
+      .restaurant-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-top: 18px;
+      }
+
+      .restaurant-item {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+      }
+
+      .restaurant-item h3 {
+        margin: 0 0 8px;
+      }
+
+      .badge {
+        display: inline-block;
+        margin-top: 8px;
+        background: #fff3eb;
+        color: var(--primary-dark);
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: bold;
+      }
+
+      .hidden { display: none; }
+
+      .message {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        display: none;
+      }
+
+      .message.success {
+        background: #ecfdf5;
+        color: var(--success);
+        display: block;
+      }
+
+      .message.error {
+        background: #fef2f2;
+        color: #b91c1c;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="brand">EasyFood</div>
+        <div class="auth-bar">
+          <span id="userName">Visitante</span>
+          <button class="btn btn-secondary" id="logoutBtn" style="display:none;">Sair</button>
+        </div>
+      </header>
+
+      <section class="hero panel">
+        <div>
+          <h1>Descubra os melhores restaurantes</h1>
+          <p class="subtext">
+            Acesse o catálogo de restaurantes, cadastre novos locais e aproveite uma experiência simples e rápida para explorar opções de comida.
+          </p>
+        </div>
+
+        <div class="panel" id="authPanel">
+          <div id="loginFormWrap">
+            <h2>Entrar</h2>
+            <form id="loginForm">
+              <div>
+                <label for="loginEmail">E-mail</label>
+                <input id="loginEmail" type="email" placeholder="seu@email.com" required />
+              </div>
+              <div>
+                <label for="loginPassword">Senha</label>
+                <input id="loginPassword" type="password" placeholder="********" required />
+              </div>
+              <button class="btn btn-primary" type="submit">Entrar</button>
+            </form>
+          </div>
+
+          <div id="registerFormWrap" class="hidden">
+            <h2>Criar conta</h2>
+            <form id="registerForm">
+              <div>
+                <label for="registerName">Nome</label>
+                <input id="registerName" type="text" placeholder="Seu nome" required />
+              </div>
+              <div>
+                <label for="registerEmail">E-mail</label>
+                <input id="registerEmail" type="email" placeholder="seu@email.com" required />
+              </div>
+              <div>
+                <label for="registerPassword">Senha</label>
+                <input id="registerPassword" type="password" placeholder="********" required />
+              </div>
+              <button class="btn btn-primary" type="submit">Cadastrar</button>
+            </form>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <button id="toggleAuthBtn" class="btn btn-secondary" type="button">Criar conta</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel restaurants">
+        <h2>Restaurantes</h2>
+
+        <div id="restaurantFormWrap" class="hidden">
+          <h3>Novo restaurante</h3>
+          <form id="restaurantForm">
+            <div>
+              <label for="restaurantName">Nome</label>
+              <input id="restaurantName" type="text" placeholder="Nome do restaurante" required />
+            </div>
+            <div>
+              <label for="restaurantEmail">E-mail do restaurante</label>
+              <input id="restaurantEmail" type="email" placeholder="restaurante@email.com" required />
+            </div>
+            <div>
+              <label for="restaurantCategory">Categoria</label>
+              <input id="restaurantCategory" type="text" placeholder="Ex: Brasileira" required />
+            </div>
+            <div>
+              <label for="restaurantRating">Avaliação</label>
+              <input id="restaurantRating" type="number" min="0" max="5" step="0.1" value="0" />
+            </div>
+            <button class="btn btn-primary" type="submit">Salvar restaurante</button>
+          </form>
+        </div>
+
+        <div id="message" class="message"></div>
+        <div id="restaurantList" class="restaurant-list"></div>
+      </section>
+    </div>
+
+    <script>
+      const apiUrl = 'http://localhost:3000';
+      const token = localStorage.getItem('token');
+      const userName = document.getElementById('userName');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const authPanel = document.getElementById('authPanel');
+      const loginFormWrap = document.getElementById('loginFormWrap');
+      const registerFormWrap = document.getElementById('registerFormWrap');
+      const toggleAuthBtn = document.getElementById('toggleAuthBtn');
+      const restaurantFormWrap = document.getElementById('restaurantFormWrap');
+      const messageBox = document.getElementById('message');
+
+      const showMessage = (text, type) => {
+        messageBox.textContent = text;
+        messageBox.className = `message ${type}`;
+      };
+
+      const updateAuthState = () => {
+        const currentToken = localStorage.getItem('token');
+        const currentUser = localStorage.getItem('userName');
+
+        if (currentToken) {
+          userName.textContent = currentUser || 'Usuário';
+          logoutBtn.style.display = 'inline-block';
+          restaurantFormWrap.classList.remove('hidden');
+          authPanel.classList.add('hidden');
+        } else {
+          userName.textContent = 'Visitante';
+          logoutBtn.style.display = 'none';
+          restaurantFormWrap.classList.add('hidden');
+          authPanel.classList.remove('hidden');
+        }
+      };
+
+      const loadRestaurants = async () => {
+        try {
+          const response = await fetch(`${apiUrl}/restaurants`, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          const restaurants = await response.json();
+
+          const list = document.getElementById('restaurantList');
+          list.innerHTML = '';
+
+          if (!Array.isArray(restaurants) || restaurants.length === 0) {
+            list.innerHTML = '<p>Nenhum restaurante cadastrado ainda.</p>';
+            return;
+          }
+
+          restaurants.forEach((restaurant) => {
+            const card = document.createElement('div');
+            card.className = 'restaurant-item';
+            card.innerHTML = `
+              <h3>${restaurant.name}</h3>
+              <p>${restaurant.category}</p>
+              <p style="color:#6b7280; font-size:0.9rem;">${restaurant.email || 'Sem e-mail'}</p>
+              <div class="badge">⭐ ${restaurant.rating || 0}</div>
+            `;
+            list.appendChild(card);
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      document.getElementById('loginForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        try {
+          const response = await fetch(`${apiUrl}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            showMessage(data.error || 'Erro ao fazer login.', 'error');
+            return;
+          }
+
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('userName', data.user.name || 'Usuário');
+          showMessage('Login realizado com sucesso!', 'success');
+          updateAuthState();
+          document.getElementById('loginForm').reset();
+          loadRestaurants();
+        } catch (error) {
+          showMessage('Erro de conexão com o servidor.', 'error');
+        }
+      });
+
+      document.getElementById('registerForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+
+        try {
+          const response = await fetch(`${apiUrl}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            showMessage(data.error || 'Erro ao criar conta.', 'error');
+            return;
+          }
+
+          showMessage('Conta criada com sucesso! Faça login.', 'success');
+          document.getElementById('registerForm').reset();
+          toggleAuthBtn.click();
+        } catch (error) {
+          showMessage('Erro de conexão com o servidor.', 'error');
+        }
+      });
+
+      document.getElementById('restaurantForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const name = document.getElementById('restaurantName').value;
+        const email = document.getElementById('restaurantEmail').value;
+        const category = document.getElementById('restaurantCategory').value;
+        const rating = Number(document.getElementById('restaurantRating').value || 0);
+
+        try {
+          const response = await fetch(`${apiUrl}/restaurants`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ name, email, category, rating })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            showMessage(data.error || 'Erro ao cadastrar restaurante.', 'error');
+            return;
+          }
+
+          showMessage('Restaurante cadastrado com sucesso!', 'success');
+          document.getElementById('restaurantForm').reset();
+          await loadRestaurants();
+        } catch (error) {
+          showMessage('Erro ao salvar restaurante.', 'error');
+        }
+      });
+
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userName');
+        updateAuthState();
+        showMessage('Você saiu da conta.', 'success');
+      });
+
+      toggleAuthBtn.addEventListener('click', () => {
+        const showingLogin = !loginFormWrap.classList.contains('hidden');
+
+        if (showingLogin) {
+          loginFormWrap.classList.add('hidden');
+          registerFormWrap.classList.remove('hidden');
+          toggleAuthBtn.textContent = 'Voltar ao login';
+        } else {
+          registerFormWrap.classList.add('hidden');
+          loginFormWrap.classList.remove('hidden');
+          toggleAuthBtn.textContent = 'Criar conta';
+        }
+      });
+
+      updateAuthState();
+      loadRestaurants();
+    </script>
+  </body>
+</html>
