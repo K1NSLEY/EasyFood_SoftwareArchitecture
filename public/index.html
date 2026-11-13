@@ -1,450 +1,589 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EasyFood</title>
-    <style>
-      :root {
-        --bg: #fff7f1;
-        --card: #ffffff;
-        --primary: #ff6b35;
-        --primary-dark: #e85d2a;
-        --text: #1f2937;
-        --muted: #6b7280;
-        --border: #f2d4c1;
-        --success: #16a34a;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EasyFood | comida boa por perto</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #25302c;
+      --muted: #6b7771;
+      --primary: #e85d35;
+      --primary-dark: #c94724;
+      --surface: #fff;
+      --line: #e8e9e5;
+      --canvas: #f7f8f4;
+      --success: #28784d;
+      --danger: #b83e35;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .shell { max-width: 1120px; margin: auto; padding: 24px; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 24px; }
+    .brand { color: var(--primary); font-size: 1.8rem; font-weight: 850; letter-spacing: -.06em; }
+    .account { display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 42px; height: 42px; object-fit: cover; border-radius: 50%; background: #f4ded4; }
+    .button { border: 0; border-radius: 10px; padding: 10px 15px; color: var(--ink); background: #eceee9; font-weight: 700; }
+    .button.primary { color: white; background: var(--primary); }
+    .button.primary:hover { background: var(--primary-dark); }
+    .button.ghost { background: transparent; border: 1px solid var(--line); }
+    .button.danger { color: var(--danger); background: #fff0ed; }
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px; box-shadow: 0 8px 26px #26352b0a; }
+    .intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 24px; align-items: center; margin-bottom: 22px; }
+    h1 { margin: 0 0 10px; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.05; letter-spacing: -.05em; }
+    h2 { margin: 0 0 15px; font-size: 1.35rem; }
+    h3 { margin: 0 0 8px; }
+    p { line-height: 1.55; }
+    .muted { color: var(--muted); }
+    .auth-form, .stack { display: grid; gap: 12px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    label { display: grid; gap: 6px; font-size: .9rem; font-weight: 650; }
+    input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid #d8dcd6; border-radius: 10px; background: white; color: var(--ink); }
+    textarea { min-height: 90px; resize: vertical; }
+    .auth-switch { text-align: center; font-size: .9rem; }
+    .auth-switch button { padding: 0; border: 0; color: var(--primary-dark); background: transparent; font-weight: 700; }
+    .navigation { display: flex; gap: 8px; overflow-x: auto; margin: 0 0 20px; padding-bottom: 3px; }
+    .navigation button { white-space: nowrap; }
+    .navigation button.active { color: white; background: var(--ink); }
+    .view[hidden], [hidden] { display: none !important; }
+    .tools { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(180px, 250px); gap: 12px; margin-bottom: 14px; }
+    .chips { display: flex; gap: 8px; overflow-x: auto; margin: 12px 0 20px; padding-bottom: 3px; }
+    .chip { border: 1px solid var(--line); border-radius: 999px; padding: 8px 13px; white-space: nowrap; background: white; }
+    .chip.active { color: white; border-color: var(--ink); background: var(--ink); }
+    .restaurant-list, .dish-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); gap: 14px; }
+    .restaurant-card, .dish-card { overflow: hidden; border: 1px solid var(--line); border-radius: 15px; background: white; }
+    .restaurant-card { padding: 17px; }
+    .restaurant-card h3 { overflow-wrap: anywhere; }
+    .card-top, .card-actions, .section-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .badge { display: inline-block; border-radius: 999px; padding: 5px 9px; color: #8b482e; background: #fff0e8; font-size: .8rem; font-weight: 700; }
+    .card-actions { justify-content: flex-start; margin-top: 13px; }
+    .dish-image { display: block; width: 100%; height: 180px; object-fit: cover; background: #f3eee9; }
+    .dish-body { padding: 15px; }
+    .dish-description { min-height: 44px; margin: 8px 0; color: var(--muted); font-size: .92rem; }
+    .dish-price { color: var(--success); font-weight: 800; }
+    .pagination { display: flex; justify-content: center; margin-top: 18px; }
+    .message { min-height: 1.4em; margin: 10px 0; font-size: .92rem; }
+    .message.success { color: var(--success); }
+    .message.error { color: var(--danger); }
+    .empty { grid-column: 1 / -1; padding: 30px 12px; text-align: center; color: var(--muted); }
+    .profile-card { display: flex; align-items: center; gap: 18px; margin-bottom: 16px; }
+    .profile-card .avatar { width: 78px; height: 78px; }
+    .activity-list { display: grid; gap: 10px; padding: 0; list-style: none; }
+    .activity-list li { padding: 12px; border-radius: 10px; background: var(--canvas); }
+    .activity-list time { display: block; margin-top: 4px; color: var(--muted); font-size: .82rem; }
+    .form-section { max-width: 680px; }
+    .preview { width: 112px; height: 112px; object-fit: cover; border-radius: 12px; background: #f3eee9; }
+    @media (max-width: 720px) {
+      .shell { padding: 16px; }
+      .intro { grid-template-columns: 1fr; }
+      .form-grid, .tools { grid-template-columns: 1fr; }
+      header { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <a class="brand" href="#" aria-label="EasyFood início">easyfood<span aria-hidden="true">.</span></a>
+      <div class="account">
+        <img id="headerAvatar" class="avatar" alt="Foto do usuário" hidden>
+        <span id="headerName" class="muted">Visitante</span>
+        <button id="logoutButton" class="button ghost" hidden>Sair</button>
+      </div>
+    </header>
 
-      * { box-sizing: border-box; }
+    <section class="intro">
+      <div>
+        <p class="badge">Seu próximo prato favorito</p>
+        <h1>Comida boa,<br>perto de você.</h1>
+        <p class="muted">Explore restaurantes, conheça os pratos do cardápio e acompanhe suas descobertas.</p>
+      </div>
+      <div id="authPanel" class="panel">
+        <form id="loginForm" class="auth-form">
+          <h2>Entre na sua conta</h2>
+          <label>E-mail<input id="loginEmail" type="email" autocomplete="email" required></label>
+          <label>Senha<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+          <button class="button primary" type="submit">Entrar</button>
+        </form>
+        <form id="registerForm" class="auth-form" hidden>
+          <h2>Crie sua conta</h2>
+          <label>Nome<input id="registerName" type="text" autocomplete="name" required maxlength="100"></label>
+          <label>E-mail<input id="registerEmail" type="email" autocomplete="email" required></label>
+          <label>Senha<input id="registerPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+          <button class="button primary" type="submit">Criar conta</button>
+        </form>
+        <p class="auth-switch"><span id="authPrompt">Ainda não tem conta?</span>
+          <button id="toggleAuth" type="button">Cadastre-se</button>
+        </p>
+        <p id="authMessage" class="message" role="status"></p>
+      </div>
+    </section>
 
-      body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: linear-gradient(135deg, #fff7f1 0%, #ffe9dc 100%);
-        color: var(--text);
-      }
+    <nav class="navigation" aria-label="Navegação principal">
+      <button class="button active" data-view="home">Explorar</button>
+      <button class="button" data-view="newRestaurant" data-private>Adicionar restaurante</button>
+      <button class="button" data-view="favorites">Favoritos <span id="favoriteCount">0</span></button>
+      <button class="button" data-view="profile" data-private>Meu perfil</button>
+    </nav>
 
-      .container {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 32px 20px 60px;
-      }
+    <section id="homeView" class="view panel">
+      <div class="section-title"><h2>Restaurantes</h2><span id="resultCount" class="muted"></span></div>
+      <div class="tools">
+        <label>Buscar por nome<input id="searchInput" type="search" placeholder="Ex.: cantina, pizza..."></label>
+        <label>Ordenar por
+          <select id="sortSelect">
+            <option value="recent">Mais recentes</option>
+            <option value="rating">Melhor avaliação</option>
+            <option value="name">Nome A–Z</option>
+          </select>
+        </label>
+      </div>
+      <div id="categoryChips" class="chips" aria-label="Filtrar por categoria"></div>
+      <div id="restaurantList" class="restaurant-list" aria-live="polite"></div>
+      <div class="pagination"><button id="loadMore" class="button ghost" hidden>Carregar mais</button></div>
+      <p id="homeMessage" class="message" role="status"></p>
+    </section>
 
-      header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-
-      .brand {
-        font-size: 2rem;
-        font-weight: bold;
-        color: var(--primary);
-      }
-
-      .auth-bar {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-
-      .btn {
-        border: none;
-        padding: 10px 16px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: bold;
-      }
-
-      .btn-primary {
-        background: var(--primary);
-        color: white;
-      }
-
-      .btn-secondary {
-        background: #f3f4f6;
-        color: var(--text);
-      }
-
-      .panel {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 18px;
-        padding: 24px;
-        box-shadow: 0 12px 30px rgba(0,0,0,0.05);
-      }
-
-      .hero {
-        display: grid;
-        grid-template-columns: 1.2fr 1fr;
-        gap: 24px;
-        margin-bottom: 30px;
-      }
-
-      h1 {
-        margin-top: 0;
-        font-size: 2.5rem;
-      }
-
-      .subtext {
-        color: var(--muted);
-        line-height: 1.6;
-      }
-
-      .forms {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-      }
-
-      form {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      input, select {
-        width: 100%;
-        padding: 12px 14px;
-        border-radius: 10px;
-        border: 1px solid #d1d5db;
-        font-size: 1rem;
-      }
-
-      label {
-        font-weight: 600;
-      }
-
-      .restaurants {
-        margin-top: 32px;
-      }
-
-      .restaurant-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 16px;
-        margin-top: 18px;
-      }
-
-      .restaurant-item {
-        background: #fff;
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 18px;
-      }
-
-      .restaurant-item h3 {
-        margin: 0 0 8px;
-      }
-
-      .badge {
-        display: inline-block;
-        margin-top: 8px;
-        background: #fff3eb;
-        color: var(--primary-dark);
-        padding: 5px 10px;
-        border-radius: 999px;
-        font-size: 0.85rem;
-        font-weight: bold;
-      }
-
-      .hidden { display: none; }
-
-      .message {
-        margin-top: 12px;
-        padding: 10px 12px;
-        border-radius: 10px;
-        display: none;
-      }
-
-      .message.success {
-        background: #ecfdf5;
-        color: var(--success);
-        display: block;
-      }
-
-      .message.error {
-        background: #fef2f2;
-        color: #b91c1c;
-        display: block;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <header>
-        <div class="brand">EasyFood</div>
-        <div class="auth-bar">
-          <span id="userName">Visitante</span>
-          <button class="btn btn-secondary" id="logoutBtn" style="display:none;">Sair</button>
+    <section id="newRestaurantView" class="view panel form-section" hidden>
+      <h2>Cadastrar restaurante</h2>
+      <form id="restaurantForm" class="stack">
+        <div class="form-grid">
+          <label>Nome<input id="restaurantName" required maxlength="150"></label>
+          <label>E-mail de contato<input id="restaurantEmail" type="email" required></label>
+          <label>Categoria<input id="restaurantCategory" required maxlength="80" placeholder="Brasileira, Pizza..."></label>
+          <label>Avaliação inicial
+            <input id="restaurantRating" type="number" min="0" max="5" step="0.1" value="0" required>
+          </label>
         </div>
-      </header>
+        <button class="button primary" type="submit">Salvar restaurante</button>
+      </form>
+      <p id="restaurantMessage" class="message" role="status"></p>
+    </section>
 
-      <section class="hero panel">
-        <div>
-          <h1>Descubra os melhores restaurantes</h1>
-          <p class="subtext">
-            Acesse o catálogo de restaurantes, cadastre novos locais e aproveite uma experiência simples e rápida para explorar opções de comida.
-          </p>
-        </div>
+    <section id="favoritesView" class="view panel" hidden>
+      <h2>Seus restaurantes favoritos</h2>
+      <div id="favoritesList" class="restaurant-list"></div>
+    </section>
 
-        <div class="panel" id="authPanel">
-          <div id="loginFormWrap">
-            <h2>Entrar</h2>
-            <form id="loginForm">
-              <div>
-                <label for="loginEmail">E-mail</label>
-                <input id="loginEmail" type="email" placeholder="seu@email.com" required />
-              </div>
-              <div>
-                <label for="loginPassword">Senha</label>
-                <input id="loginPassword" type="password" placeholder="********" required />
-              </div>
-              <button class="btn btn-primary" type="submit">Entrar</button>
-            </form>
+    <section id="profileView" class="view panel" hidden>
+      <h2>Meu perfil</h2>
+      <div class="profile-card">
+        <img id="profileAvatar" class="avatar" alt="Foto de perfil">
+        <div><h3 id="profileName"></h3><p id="profileEmail" class="muted"></p></div>
+      </div>
+      <form id="avatarForm" class="stack form-section">
+        <label>Atualizar foto de perfil
+          <input id="avatarFile" type="file" accept="image/jpeg,image/png,image/webp" required>
+        </label>
+        <button class="button primary" type="submit">Enviar foto</button>
+      </form>
+      <p id="profileMessage" class="message" role="status"></p>
+      <h3>Atividade recente</h3>
+      <ul id="activityList" class="activity-list"></ul>
+    </section>
+
+    <section id="menuView" class="view panel" hidden>
+      <div class="section-title">
+        <div><button id="backToRestaurants" class="button ghost">← Restaurantes</button><h2 id="menuTitle" style="margin-top:12px"></h2></div>
+        <span id="menuCategory" class="badge"></span>
+      </div>
+      <div id="dishList" class="dish-list"></div>
+      <section id="dishEditor" class="panel form-section" style="margin-top:20px" hidden>
+        <h3 id="dishFormTitle">Adicionar prato</h3>
+        <form id="dishForm" class="stack">
+          <input id="dishId" type="hidden">
+          <div class="form-grid">
+            <label>Nome do prato<input id="dishName" required maxlength="120"></label>
+            <label>Categoria<input id="dishCategory" required maxlength="80" placeholder="Principal, sobremesa..."></label>
+            <label>Preço (R$)<input id="dishPrice" type="number" min="0" step="0.01" required></label>
+            <label>Foto do prato<input id="dishImage" type="file" accept="image/jpeg,image/png,image/webp"></label>
           </div>
-
-          <div id="registerFormWrap" class="hidden">
-            <h2>Criar conta</h2>
-            <form id="registerForm">
-              <div>
-                <label for="registerName">Nome</label>
-                <input id="registerName" type="text" placeholder="Seu nome" required />
-              </div>
-              <div>
-                <label for="registerEmail">E-mail</label>
-                <input id="registerEmail" type="email" placeholder="seu@email.com" required />
-              </div>
-              <div>
-                <label for="registerPassword">Senha</label>
-                <input id="registerPassword" type="password" placeholder="********" required />
-              </div>
-              <button class="btn btn-primary" type="submit">Cadastrar</button>
-            </form>
+          <label>Descrição<textarea id="dishDescription" required maxlength="1000"></textarea></label>
+          <div class="card-actions">
+            <button class="button primary" type="submit">Salvar prato</button>
+            <button id="cancelDishEdit" class="button ghost" type="button" hidden>Cancelar edição</button>
           </div>
-
-          <div style="margin-top: 12px;">
-            <button id="toggleAuthBtn" class="btn btn-secondary" type="button">Criar conta</button>
-          </div>
-        </div>
+        </form>
+        <p id="dishMessage" class="message" role="status"></p>
       </section>
+    </section>
+  </main>
 
-      <section class="panel restaurants">
-        <h2>Restaurantes</h2>
+  <script>
+    const API = '';
+    const PAGE_SIZE = 6;
+    const DEFAULT_AVATAR = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"%3E%3Crect width="80" height="80" rx="40" fill="%23f4ded4"/%3E%3Ctext x="40" y="52" text-anchor="middle" font-size="38"%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E';
+    const state = {
+      user: null,
+      restaurants: [],
+      category: 'Todos',
+      query: '',
+      page: 1,
+      view: 'home',
+      selectedRestaurant: null,
+      favorites: new Set(JSON.parse(localStorage.getItem('easyfoodFavorites') || '[]'))
+    };
 
-        <div id="restaurantFormWrap" class="hidden">
-          <h3>Novo restaurante</h3>
-          <form id="restaurantForm">
-            <div>
-              <label for="restaurantName">Nome</label>
-              <input id="restaurantName" type="text" placeholder="Nome do restaurante" required />
-            </div>
-            <div>
-              <label for="restaurantEmail">E-mail do restaurante</label>
-              <input id="restaurantEmail" type="email" placeholder="restaurante@email.com" required />
-            </div>
-            <div>
-              <label for="restaurantCategory">Categoria</label>
-              <input id="restaurantCategory" type="text" placeholder="Ex: Brasileira" required />
-            </div>
-            <div>
-              <label for="restaurantRating">Avaliação</label>
-              <input id="restaurantRating" type="number" min="0" max="5" step="0.1" value="0" />
-            </div>
-            <button class="btn btn-primary" type="submit">Salvar restaurante</button>
-          </form>
-        </div>
+    const byId = (id) => document.getElementById(id);
+    const token = () => localStorage.getItem('token');
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[char]);
 
-        <div id="message" class="message"></div>
-        <div id="restaurantList" class="restaurant-list"></div>
-      </section>
-    </div>
+    async function request(url, options = {}) {
+      const headers = new Headers(options.headers || {});
+      if (token()) headers.set('Authorization', `Bearer ${token()}`);
+      if (options.body && !(options.body instanceof FormData)) headers.set('Content-Type', 'application/json');
+      const response = await fetch(`${API}${url}`, { ...options, headers });
+      const type = response.headers.get('content-type') || '';
+      const payload = type.includes('application/json') ? await response.json() : null;
+      if (!response.ok) throw new Error(payload?.error || `Falha na requisição (${response.status})`);
+      return payload;
+    }
 
-    <script>
-      const apiUrl = 'http://localhost:3000';
-      const token = localStorage.getItem('token');
-      const userName = document.getElementById('userName');
-      const logoutBtn = document.getElementById('logoutBtn');
-      const authPanel = document.getElementById('authPanel');
-      const loginFormWrap = document.getElementById('loginFormWrap');
-      const registerFormWrap = document.getElementById('registerFormWrap');
-      const toggleAuthBtn = document.getElementById('toggleAuthBtn');
-      const restaurantFormWrap = document.getElementById('restaurantFormWrap');
-      const messageBox = document.getElementById('message');
+    function showMessage(elementId, text, kind = '') {
+      const element = byId(elementId);
+      element.textContent = text;
+      element.className = `message ${kind}`;
+    }
 
-      const showMessage = (text, type) => {
-        messageBox.textContent = text;
-        messageBox.className = `message ${type}`;
-      };
-
-      const updateAuthState = () => {
-        const currentToken = localStorage.getItem('token');
-        const currentUser = localStorage.getItem('userName');
-
-        if (currentToken) {
-          userName.textContent = currentUser || 'Usuário';
-          logoutBtn.style.display = 'inline-block';
-          restaurantFormWrap.classList.remove('hidden');
-          authPanel.classList.add('hidden');
-        } else {
-          userName.textContent = 'Visitante';
-          logoutBtn.style.display = 'none';
-          restaurantFormWrap.classList.add('hidden');
-          authPanel.classList.remove('hidden');
-        }
-      };
-
-      const loadRestaurants = async () => {
-        try {
-          const response = await fetch(`${apiUrl}/restaurants`, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
-          const restaurants = await response.json();
-
-          const list = document.getElementById('restaurantList');
-          list.innerHTML = '';
-
-          if (!Array.isArray(restaurants) || restaurants.length === 0) {
-            list.innerHTML = '<p>Nenhum restaurante cadastrado ainda.</p>';
-            return;
-          }
-
-          restaurants.forEach((restaurant) => {
-            const card = document.createElement('div');
-            card.className = 'restaurant-item';
-            card.innerHTML = `
-              <h3>${restaurant.name}</h3>
-              <p>${restaurant.category}</p>
-              <p style="color:#6b7280; font-size:0.9rem;">${restaurant.email || 'Sem e-mail'}</p>
-              <div class="badge">⭐ ${restaurant.rating || 0}</div>
-            `;
-            list.appendChild(card);
-          });
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
-      document.getElementById('loginForm').addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-
-        try {
-          const response = await fetch(`${apiUrl}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            showMessage(data.error || 'Erro ao fazer login.', 'error');
-            return;
-          }
-
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('userName', data.user.name || 'Usuário');
-          showMessage('Login realizado com sucesso!', 'success');
-          updateAuthState();
-          document.getElementById('loginForm').reset();
-          loadRestaurants();
-        } catch (error) {
-          showMessage('Erro de conexão com o servidor.', 'error');
-        }
+    function setView(view) {
+      state.view = view;
+      document.querySelectorAll('.view').forEach((section) => {
+        section.hidden = section.id !== `${view}View`;
       });
-
-      document.getElementById('registerForm').addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        const name = document.getElementById('registerName').value;
-        const email = document.getElementById('registerEmail').value;
-        const password = document.getElementById('registerPassword').value;
-
-        try {
-          const response = await fetch(`${apiUrl}/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password })
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            showMessage(data.error || 'Erro ao criar conta.', 'error');
-            return;
-          }
-
-          showMessage('Conta criada com sucesso! Faça login.', 'success');
-          document.getElementById('registerForm').reset();
-          toggleAuthBtn.click();
-        } catch (error) {
-          showMessage('Erro de conexão com o servidor.', 'error');
-        }
+      document.querySelectorAll('.navigation [data-view]').forEach((button) => {
+        button.classList.toggle('active', button.dataset.view === view);
       });
+      if (view === 'favorites') renderFavorites();
+      if (view === 'profile' && state.user) loadActivity();
+    }
 
-      document.getElementById('restaurantForm').addEventListener('submit', async (event) => {
-        event.preventDefault();
+    function updateAccount() {
+      const signedIn = Boolean(state.user);
+      byId('authPanel').hidden = signedIn;
+      byId('logoutButton').hidden = !signedIn;
+      byId('headerName').textContent = state.user?.name || 'Visitante';
+      byId('headerAvatar').hidden = !signedIn;
+      byId('headerAvatar').src = state.user?.avatarUrl || DEFAULT_AVATAR;
+      document.querySelectorAll('[data-private]').forEach((item) => { item.hidden = !signedIn; });
+      if (signedIn) {
+        byId('profileName').textContent = state.user.name;
+        byId('profileEmail').textContent = state.user.email;
+        byId('profileAvatar').src = state.user.avatarUrl || DEFAULT_AVATAR;
+      }
+    }
 
-        const name = document.getElementById('restaurantName').value;
-        const email = document.getElementById('restaurantEmail').value;
-        const category = document.getElementById('restaurantCategory').value;
-        const rating = Number(document.getElementById('restaurantRating').value || 0);
-
-        try {
-          const response = await fetch(`${apiUrl}/restaurants`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({ name, email, category, rating })
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            showMessage(data.error || 'Erro ao cadastrar restaurante.', 'error');
-            return;
-          }
-
-          showMessage('Restaurante cadastrado com sucesso!', 'success');
-          document.getElementById('restaurantForm').reset();
-          await loadRestaurants();
-        } catch (error) {
-          showMessage('Erro ao salvar restaurante.', 'error');
-        }
-      });
-
-      document.getElementById('logoutBtn').addEventListener('click', () => {
+    async function restoreSession() {
+      if (!token()) return updateAccount();
+      try {
+        const user = await request('/auth/me');
+        state.user = user;
+      } catch (error) {
         localStorage.removeItem('token');
-        localStorage.removeItem('userName');
-        updateAuthState();
-        showMessage('Você saiu da conta.', 'success');
+        state.user = null;
+      }
+      updateAccount();
+    }
+
+    function visibleRestaurants() {
+      const query = state.query.trim().toLocaleLowerCase('pt-BR');
+      const restaurants = state.restaurants.filter((restaurant) => {
+        const matchCategory = state.category === 'Todos' || restaurant.category === state.category;
+        return matchCategory && restaurant.name.toLocaleLowerCase('pt-BR').includes(query);
       });
+      const sort = byId('sortSelect').value;
+      if (sort === 'rating') restaurants.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
+      if (sort === 'name') restaurants.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+      if (sort === 'recent') restaurants.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      return restaurants;
+    }
 
-      toggleAuthBtn.addEventListener('click', () => {
-        const showingLogin = !loginFormWrap.classList.contains('hidden');
+    function renderCategories() {
+      const categories = ['Todos', ...new Set(state.restaurants.map((item) => item.category).filter(Boolean))];
+      byId('categoryChips').innerHTML = categories.map((category) => `
+        <button class="chip ${category === state.category ? 'active' : ''}" data-category="${escapeHtml(category)}">${escapeHtml(category)}</button>
+      `).join('');
+    }
 
-        if (showingLogin) {
-          loginFormWrap.classList.add('hidden');
-          registerFormWrap.classList.remove('hidden');
-          toggleAuthBtn.textContent = 'Voltar ao login';
-        } else {
-          registerFormWrap.classList.add('hidden');
-          loginFormWrap.classList.remove('hidden');
-          toggleAuthBtn.textContent = 'Criar conta';
+    function restaurantCard(restaurant) {
+      const favorite = state.favorites.has(restaurant.id);
+      return `<article class="restaurant-card">
+        <div class="card-top"><span class="badge">${escapeHtml(restaurant.category)}</span><button class="button ghost" data-favorite="${restaurant.id}" aria-label="${favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">${favorite ? '♥' : '♡'}</button></div>
+        <h3>${escapeHtml(restaurant.name)}</h3>
+        <p class="muted">${escapeHtml(restaurant.email || 'Restaurante EasyFood')}</p>
+        <p>⭐ ${Number(restaurant.rating || 0).toFixed(1)} <span class="muted">/ 5</span></p>
+        <div class="card-actions"><button class="button primary" data-menu="${restaurant.id}">Ver cardápio</button></div>
+      </article>`;
+    }
+
+    function renderRestaurants(listId, restaurants) {
+      byId(listId).innerHTML = restaurants.length
+        ? restaurants.map(restaurantCard).join('')
+        : '<p class="empty">Nenhum restaurante para mostrar por aqui.</p>';
+      byId(listId).querySelectorAll('[data-favorite]').forEach((button) => {
+        button.addEventListener('click', () => toggleFavorite(Number(button.dataset.favorite)));
+      });
+      byId(listId).querySelectorAll('[data-menu]').forEach((button) => {
+        button.addEventListener('click', () => openMenu(Number(button.dataset.menu)));
+      });
+    }
+
+    function renderHome() {
+      renderCategories();
+      const results = visibleRestaurants();
+      const shown = results.slice(0, state.page * PAGE_SIZE);
+      renderRestaurants('restaurantList', shown);
+      byId('resultCount').textContent = `${results.length} ${results.length === 1 ? 'local' : 'locais'}`;
+      byId('loadMore').hidden = shown.length >= results.length;
+    }
+
+    function renderFavorites() {
+      renderRestaurants('favoritesList', state.restaurants.filter((item) => state.favorites.has(item.id)));
+    }
+
+    function toggleFavorite(id) {
+      if (state.favorites.has(id)) state.favorites.delete(id);
+      else state.favorites.add(id);
+      localStorage.setItem('easyfoodFavorites', JSON.stringify([...state.favorites]));
+      byId('favoriteCount').textContent = state.favorites.size;
+      renderHome();
+      if (state.view === 'favorites') renderFavorites();
+    }
+
+    async function loadRestaurants() {
+      showMessage('homeMessage', 'Carregando restaurantes...');
+      try {
+        state.restaurants = await request('/restaurants');
+        state.page = 1;
+        showMessage('homeMessage', '');
+        byId('favoriteCount').textContent = state.favorites.size;
+        renderHome();
+      } catch (error) {
+        showMessage('homeMessage', error.message, 'error');
+      }
+    }
+
+    async function openMenu(id) {
+      const restaurant = state.restaurants.find((item) => item.id === id);
+      if (!restaurant) return;
+      resetDishForm();
+      state.selectedRestaurant = restaurant;
+      byId('menuTitle').textContent = restaurant.name;
+      byId('menuCategory').textContent = restaurant.category;
+      byId('dishEditor').hidden = !state.user || restaurant.ownerId !== state.user.id;
+      setView('menu');
+      await loadDishes(id);
+    }
+
+    async function loadDishes(restaurantId) {
+      byId('dishList').innerHTML = '<p class="empty">Carregando cardápio...</p>';
+      try {
+        const dishes = await request(`/restaurants/${restaurantId}/dishes`);
+        if (!dishes.length) {
+          byId('dishList').innerHTML = '<p class="empty">Este restaurante ainda não publicou pratos.</p>';
+          return;
         }
-      });
+        byId('dishList').innerHTML = dishes.map((dish) => `
+          <article class="dish-card">
+            ${dish.imageUrl ? `<img class="dish-image" src="${escapeHtml(dish.imageUrl)}" alt="${escapeHtml(dish.name)}">` : '<div class="dish-image" role="img" aria-label="Sem foto do prato"></div>'}
+            <div class="dish-body">
+              <span class="badge">${escapeHtml(dish.category)}</span><h3>${escapeHtml(dish.name)}</h3>
+              <p class="dish-description">${escapeHtml(dish.description)}</p>
+              <div class="card-top"><span class="dish-price">${Number(dish.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+              ${state.user?.id === state.selectedRestaurant.ownerId ? `<span class="card-actions"><button class="button ghost" data-edit-dish="${dish.id}">Editar</button><button class="button danger" data-delete-dish="${dish.id}">Excluir</button></span>` : ''}
+              </div>
+            </div>
+          </article>`).join('');
+        byId('dishList').querySelectorAll('[data-edit-dish]').forEach((button) => {
+          button.addEventListener('click', () => editDish(dishes.find((dish) => dish.id === Number(button.dataset.editDish))));
+        });
+        byId('dishList').querySelectorAll('[data-delete-dish]').forEach((button) => {
+          button.addEventListener('click', () => deleteDish(Number(button.dataset.deleteDish)));
+        });
+      } catch (error) {
+        byId('dishList').innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`;
+      }
+    }
 
-      updateAuthState();
-      loadRestaurants();
-    </script>
-  </body>
+    function editDish(dish) {
+      byId('dishId').value = dish.id;
+      byId('dishName').value = dish.name;
+      byId('dishCategory').value = dish.category;
+      byId('dishPrice').value = dish.price;
+      byId('dishDescription').value = dish.description;
+      byId('dishImage').required = false;
+      byId('dishFormTitle').textContent = 'Editar prato';
+      byId('cancelDishEdit').hidden = false;
+      byId('dishEditor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetDishForm() {
+      byId('dishForm').reset();
+      byId('dishId').value = '';
+      byId('dishImage').required = false;
+      byId('dishFormTitle').textContent = 'Adicionar prato';
+      byId('cancelDishEdit').hidden = true;
+      showMessage('dishMessage', '');
+    }
+
+    async function deleteDish(id) {
+      if (!confirm('Excluir este prato do cardápio?')) return;
+      try {
+        await request(`/dishes/${id}`, { method: 'DELETE' });
+        await loadDishes(state.selectedRestaurant.id);
+      } catch (error) {
+        showMessage('dishMessage', error.message, 'error');
+      }
+    }
+
+    async function loadActivity() {
+      try {
+        const entries = await request('/activity');
+        byId('activityList').innerHTML = entries.length ? entries.map((entry) => `
+          <li>${escapeHtml(entry.details || entry.action)}<time>${new Date(entry.createdAt).toLocaleString('pt-BR')}</time></li>
+        `).join('') : '<li class="muted">Suas ações recentes aparecerão aqui.</li>';
+      } catch (error) {
+        byId('activityList').innerHTML = `<li class="message error">${escapeHtml(error.message)}</li>`;
+      }
+    }
+
+    document.querySelectorAll('.navigation [data-view]').forEach((button) => {
+      button.addEventListener('click', () => setView(button.dataset.view));
+    });
+    byId('categoryChips').addEventListener('click', (event) => {
+      const button = event.target.closest('[data-category]');
+      if (!button) return;
+      state.category = button.dataset.category;
+      state.page = 1;
+      renderHome();
+    });
+    byId('searchInput').addEventListener('input', (event) => {
+      state.query = event.target.value;
+      state.page = 1;
+      renderHome();
+    });
+    byId('sortSelect').addEventListener('change', renderHome);
+    byId('loadMore').addEventListener('click', () => { state.page++; renderHome(); });
+    byId('backToRestaurants').addEventListener('click', () => setView('home'));
+    byId('toggleAuth').addEventListener('click', () => {
+      const showRegister = byId('registerForm').hidden;
+      byId('registerForm').hidden = !showRegister;
+      byId('loginForm').hidden = showRegister;
+      byId('authPrompt').textContent = showRegister ? 'Já tem uma conta?' : 'Ainda não tem conta?';
+      byId('toggleAuth').textContent = showRegister ? 'Entrar' : 'Cadastre-se';
+      showMessage('authMessage', '');
+    });
+
+    byId('loginForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        const result = await request('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email: byId('loginEmail').value, password: byId('loginPassword').value })
+        });
+        localStorage.setItem('token', result.token);
+        state.user = result.user;
+        state.user = await request('/auth/me');
+        updateAccount();
+        await loadRestaurants();
+        setView('home');
+      } catch (error) {
+        showMessage('authMessage', error.message, 'error');
+      }
+    });
+
+    byId('registerForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        await request('/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: byId('registerName').value,
+            email: byId('registerEmail').value,
+            password: byId('registerPassword').value
+          })
+        });
+        byId('registerForm').reset();
+        byId('toggleAuth').click();
+        showMessage('authMessage', 'Conta criada. Entre com seu e-mail e senha.', 'success');
+      } catch (error) {
+        showMessage('authMessage', error.message, 'error');
+      }
+    });
+
+    byId('logoutButton').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      state.user = null;
+      updateAccount();
+      setView('home');
+      renderHome();
+    });
+
+    byId('restaurantForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        await request('/restaurants', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: byId('restaurantName').value.trim(),
+            email: byId('restaurantEmail').value.trim(),
+            category: byId('restaurantCategory').value.trim(),
+            rating: Number(byId('restaurantRating').value)
+          })
+        });
+        byId('restaurantForm').reset();
+        showMessage('restaurantMessage', 'Restaurante cadastrado!', 'success');
+        await loadRestaurants();
+        setView('home');
+      } catch (error) {
+        showMessage('restaurantMessage', error.message, 'error');
+      }
+    });
+
+    byId('dishForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const id = byId('dishId').value;
+      const data = new FormData();
+      data.append('name', byId('dishName').value.trim());
+      data.append('category', byId('dishCategory').value.trim());
+      data.append('price', byId('dishPrice').value);
+      data.append('description', byId('dishDescription').value.trim());
+      if (byId('dishImage').files[0]) data.append('image', byId('dishImage').files[0]);
+      try {
+        await request(id ? `/dishes/${id}` : `/restaurants/${state.selectedRestaurant.id}/dishes`, {
+          method: id ? 'PUT' : 'POST',
+          body: data
+        });
+        resetDishForm();
+        await loadDishes(state.selectedRestaurant.id);
+      } catch (error) {
+        showMessage('dishMessage', error.message, 'error');
+      }
+    });
+    byId('cancelDishEdit').addEventListener('click', resetDishForm);
+
+    byId('avatarForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const image = byId('avatarFile').files[0];
+      if (!image) return showMessage('profileMessage', 'Selecione uma imagem.', 'error');
+      const data = new FormData();
+      data.append('image', image);
+      try {
+        state.user = await request('/auth/me/image', { method: 'POST', body: data });
+        updateAccount();
+        byId('avatarForm').reset();
+        showMessage('profileMessage', 'Foto de perfil atualizada.', 'success');
+      } catch (error) {
+        showMessage('profileMessage', error.message, 'error');
+      }
+    });
+
+    byId('favoriteCount').textContent = state.favorites.size;
+    restoreSession().then(loadRestaurants);
+  </script>
+</body>
 </html>

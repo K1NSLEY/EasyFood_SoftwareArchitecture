@@ -3,17 +3,20 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           Int          @id @default(autoincrement())
+  name         String
+  email        String       @unique
+  password     String
+  avatarUrl    String?
+  restaurants  Restaurant[]
+  activities   Activity[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 }
 
 model Restaurant {
@@ -22,6 +25,31 @@ model Restaurant {
   email     String
   category  String
   rating    Float    @default(0)
+  ownerId   Int?
+  owner     User?    @relation(fields: [ownerId], references: [id])
+  dishes    Dish[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Dish {
+  id           Int        @id @default(autoincrement())
+  name         String
+  category     String
+  price        Float
+  description  String
+  imageUrl     String?
+  restaurantId Int
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Activity {
+  id        Int      @id @default(autoincrement())
+  action    String
+  details   String?
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
 }

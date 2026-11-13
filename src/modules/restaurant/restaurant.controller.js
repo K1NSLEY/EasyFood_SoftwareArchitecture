@@ -1,6 +1,7 @@
 const restaurantService = require('./restaurant.service');
 const { sendWelcomeEmail, notifyCommercialTeam } = require('../../services/email.service');
 const { writeLog } = require('../../services/logger.service');
+const activityService = require('../activity/activity.service');
 
 async function list(req, res) {
   try {
@@ -25,12 +26,17 @@ async function create(req, res) {
       email,
       category,
       rating
-    });
+    }, req.user.id);
 
     await Promise.allSettled([
       sendWelcomeEmail(restaurant),
       notifyCommercialTeam(restaurant)
     ]);
+    try {
+      await activityService.log(req.user.id, 'RESTAURANT_CREATED', `Restaurante: ${restaurant.name}`);
+    } catch (activityError) {
+      writeLog('error', 'Erro ao registrar atividade do restaurante', { error: activityError.message });
+    }
 
     writeLog('info', 'Restaurante cadastrado com sucesso', {
       restaurantId: restaurant.id,

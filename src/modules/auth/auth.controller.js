@@ -1,6 +1,7 @@
 const authService = require('./auth.service');
 const prisma = require('../../database/prisma');
 const { writeLog } = require('../../services/logger.service');
+const activityService = require('../activity/activity.service');
 
 async function register(req, res) {
   const { name, email, password } = req.body;
@@ -47,7 +48,7 @@ async function me(req, res) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
-      select: { id: true, name: true, email: true }
+      select: { id: true, name: true, email: true, avatarUrl: true }
     });
 
     if (!user) {
@@ -61,4 +62,28 @@ async function me(req, res) {
   }
 }
 
-module.exports = { register, login, me };
+async function updateAvatar(req, res) {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Selecione uma imagem para o perfil' });
+  }
+
+  try {
+    const user = await authService.updateAvatar(req.user.id, req.file);
+    try {
+      await activityService.log(req.user.id, 'PROFILE_IMAGE_UPDATED', 'Foto de perfil atualizada');
+    } catch (activityError) {
+      writeLog('error', 'Erro ao registrar atualização da foto de perfil', { error: activityError.message });
+    }
+    return res.json(user);
+  } catch (error) {
+    const status = error.statusCode || 500;
+    if (status >= 500) {
+      writeLog('error', 'Erro ao atualizar imagem de perfil', { error: error.message });
+    }
+    return res.status(status).json({
+      error: status >= 500 ? 'Erro interno do servidor' : error.message
+    });
+  }
+}
+
+module.exports = { register, login, me, updateAvatar };

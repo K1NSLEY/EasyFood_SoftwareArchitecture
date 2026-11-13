@@ -1,137 +1,75 @@
-# EasyFood API
+# EasyFood
 
-Projeto base de uma API REST para gerenciamento de restaurantes, desenvolvido em Node.js com Express e Prisma. A aplicação foi estruturada para servir como backend inicial de um sistema de catálogo de restaurantes, com possibilidade de expansão para frontend, autenticação e banco de dados mais completo.
+Aplicação de catálogo de restaurantes com API em Node.js, Express e Prisma, banco PostgreSQL e interface web responsiva.
 
-## Informações do autor
+## Recursos
 
-- Nome: Kinsley Amadi
-- RA: 97399
-- Atividade acadêmica: desenvolvimento do projeto base EasyFood
+- Cadastro e login com senha armazenada em hash e autenticação JWT.
+- Cadastro de restaurantes associados à conta que os criou.
+- Cardápios públicos com criação, edição e exclusão de pratos restritas ao proprietário do restaurante.
+- Envio de fotos para pratos e perfil (JPEG, PNG ou WebP, até 5 MB), otimizadas e armazenadas em WebP.
+- Busca por nome, filtro por categoria, ordenação, paginação e favoritos no navegador.
+- Histórico recente das atividades da conta.
+- Notificações por e-mail no cadastro de restaurantes, quando SMTP estiver configurado.
 
-## Visão geral
+## Executar localmente
 
-O projeto tem como objetivo criar uma API simples para cadastrar e listar restaurantes. A estrutura atual permite:
+1. Instale as dependências:
 
-- Buscar todos os restaurantes cadastrados;
-- Cadastrar novos restaurantes via requisição HTTP;
-- Expor endpoints REST para integração com aplicações frontend ou testes de API;
-- Servir como base para evolução do sistema.
+   ```bash
+   npm install
+   ```
 
-## Tecnologias utilizadas
+2. Crie o `.env` com base em `.env.example`. A URL/credenciais do exemplo servem apenas para o PostgreSQL local definido no Compose. Configure também um `JWT_SECRET` próprio e, opcionalmente, as credenciais SMTP.
+3. Inicie o PostgreSQL local (requer Docker Desktop em execução):
 
-- Node.js
-- Express.js
-- Prisma ORM
-- CORS
-- JavaScript
+   ```bash
+   docker compose up -d db
+   ```
 
-## Estrutura do projeto
+4. Atualize o schema e gere o cliente Prisma:
 
-```text
-projeto-easyfood-aula1/
-├── .env
-├── .gitignore
-├── package.json
-├── package-lock.json
-├── prisma/
-│   ├── dev.db
-│   └── schema.prisma
-├── public/
-│   └── index.html
-├── src/
-│   ├── app.js
-│   ├── server.js
-│   ├── database/
-│   │   └── prisma.js
-│   ├── modules/
-│   │   ├── auth/
-│   │   │   ├── auth.controller.js
-│   │   │   ├── auth.middleware.js
-│   │   │   ├── auth.routes.js
-│   │   │   └── auth.service.js
-│   │   └── restaurant/
-│   │       ├── restaurant.controller.js
-│   │       ├── restaurant.routes.js
-│   │       └── restaurant.service.js
-│   └── services/
-│       ├── email.service.js
-│       └── logger.service.js
-├── server.js
-├── logs/
-│   └── app.log
-├── skills-lock.json
-├── teste.js
-└── node_modules/
-```
+   ```bash
+   npx prisma db push
+   npx prisma generate
+   ```
 
-## Análise do repositório
+   Para importar os dados do SQLite anterior (`prisma/dev.db`) para o PostgreSQL vazio:
 
-O repositório apresenta uma base funcional de backend, com foco em arquitetura simples e escalável para aplicações web. Os principais pontos observados são:
+   ```bash
+   npm run db:migrate:sqlite -- --dry-run
+   npm run db:migrate:sqlite
+   ```
 
-- O arquivo `src/server.js` concentra a configuração do servidor Express e os endpoints principais;
-- O projeto usa `@prisma/client` para comunicação com banco de dados;
-- A pasta `public` contém a interface HTML da aplicação;
-- A pasta `logs` recebe os registros operacionais da aplicação;
-- A API expõe endpoints para listar e criar restaurantes;
-- A estrutura é adequada para atividades acadêmicas, provas e entregas de disciplina de desenvolvimento back-end;
-- A aplicação ainda está em uma etapa inicial, com espaço para melhorias como validações extras, CRUD completo e documentação de rotas.
+   A migração preserva os IDs, relacionamentos e datas, não apaga a origem e recusa gravar se as tabelas do destino já contiverem dados. Requer Node.js 22.5 ou superior.
 
-## Endpoints principais
+5. Inicie o servidor:
 
-### GET /restaurants
-Retorna todos os restaurantes cadastrados.
+   ```bash
+   npm start
+   ```
 
-### POST /restaurants
-Cadastra um novo restaurante com os dados enviados no corpo da requisição.
+6. Acesse `http://localhost:3000`.
 
-Exemplo de payload:
+Imagens recebidas são gravadas em `public/uploads/` e servidas pela aplicação. O arquivo SQLite anterior é mantido como cópia local após a migração.
 
-```json
-{
-  "name": "Pizzaria do Bairro",
-  "category": "Pizza",
-  "rating": 4.8
-}
-```
+## Endpoints
 
-## Como executar o projeto
+| Método | Caminho | Acesso | Descrição |
+|---|---|---|---|
+| `POST` | `/auth/register` | Público | Criar conta |
+| `POST` | `/auth/login` | Público | Autenticar e obter token |
+| `GET` | `/auth/me` | Autenticado | Consultar perfil |
+| `POST` | `/auth/me/image` | Autenticado | Enviar imagem do perfil no campo multipart `image` |
+| `POST` | `/auth/me/avatar` | Autenticado | Alias compatível para envio da imagem do perfil |
+| `GET` | `/restaurants` | Público | Listar restaurantes |
+| `POST` | `/restaurants` | Autenticado | Cadastrar restaurante |
+| `GET` | `/restaurants/:restaurantId/dishes` | Público | Listar pratos de um restaurante |
+| `POST` | `/restaurants/:restaurantId/dishes` | Proprietário | Criar prato; formulário multipart opcional com campo `image` |
+| `GET` | `/dishes/:dishId` | Público | Consultar prato |
+| `POST` | `/dishes/:dishId/image` | Proprietário | Enviar imagem do prato no campo multipart `image` |
+| `PUT` | `/dishes/:dishId` | Proprietário | Atualizar prato e, opcionalmente, sua imagem |
+| `DELETE` | `/dishes/:dishId` | Proprietário | Excluir prato |
+| `GET` | `/activity` | Autenticado | Consultar até 50 atividades recentes da conta |
 
-### Pré-requisitos
-
-- Node.js instalado
-- npm instalado
-- Dependências do projeto instaladas
-
-### Instalação
-
-```bash
-npm install
-```
-
-### Execução
-
-```bash
-npm start
-```
-
-A aplicação será iniciada na porta:
-
-```text
-http://localhost:3000
-```
-
-## Observações importantes
-
-O banco local é SQLite e fica em `prisma/dev.db`. As credenciais SMTP devem ser configuradas no `.env` para o envio real de e-mails.
-
-## Conclusão
-
-Este projeto representa uma base sólida para o desenvolvimento de uma aplicação de delivery ou catálogo de restaurantes. A proposta é simples, clara e útil para fins didáticos, além de servir como ponto de partida para evoluções futuras em um sistema mais completo.
-
-## Licença
-
-Este projeto utiliza a licença indicada no arquivo `package.json`, que atualmente está definida como `ISC`.
-
----
-
-Desenvolvido por Kinsley Amadi - RA 97399.
+Para rotas autenticadas, envie o cabe?alho `Authorization: Bearer <token>`. Uploads de imagem usam `multipart/form-data`, com o arquivo no campo `image`.

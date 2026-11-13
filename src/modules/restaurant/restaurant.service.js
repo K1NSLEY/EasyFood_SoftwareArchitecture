@@ -6,13 +6,14 @@ async function listRestaurants() {
   });
 }
 
-async function createRestaurant(data) {
+async function createRestaurant(data, ownerId) {
   return prisma.restaurant.create({
     data: {
       name: data.name,
       email: data.email,
       category: data.category,
-      rating: Number(data.rating) || 0
+      rating: Number(data.rating) || 0,
+      ownerId
     }
   });
 }

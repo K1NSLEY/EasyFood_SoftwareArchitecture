@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: easyfood
+      POSTGRES_USER: easyfood
+      POSTGRES_PASSWORD: easyfood-local-only
+    ports:
+      - "5433:5432"
+    volumes:
+      - easyfood-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U easyfood -d easyfood"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  easyfood-postgres-data:
